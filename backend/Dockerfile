@@ -4,11 +4,16 @@ FROM node:20-slim
 # Crear y establecer el directorio de trabajo
 WORKDIR /usr/src/app
 
-# Copiar package.json y package-lock.json
+# Copiar archivos de configuración
 COPY package*.json ./
+COPY tsconfig.json ./
+COPY prisma ./prisma/
 
 # Instalar dependencias
 RUN npm install
+
+# Generar el cliente de Prisma
+RUN npx prisma generate
 
 # Copiar el código fuente
 COPY . .

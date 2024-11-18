@@ -2,7 +2,10 @@ version: '3.8'
 
 services:
   app:
-    build: ./backend
+    container_name: finance-tracker-app
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
     ports:
       - "3000:3000"
     volumes:
@@ -10,10 +13,14 @@ services:
       - /usr/src/app/node_modules
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/finance_tracker
+      - NODE_ENV=development
+      - PORT=3000
     depends_on:
       - db
+    command: npm run dev
 
   db:
+    container_name: finance-tracker-db
     image: postgres:16
     ports:
       - "5432:5432"
