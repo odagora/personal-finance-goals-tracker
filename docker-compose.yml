@@ -8,6 +8,7 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
+      - "5555:5555"
     volumes:
       - ./backend:/usr/src/app
       - /usr/src/app/node_modules
@@ -17,7 +18,7 @@ services:
       - PORT=3000
     depends_on:
       - db
-    command: npm run dev
+    command: sh -c "npx prisma studio --host 0.0.0.0 & npm run dev"
 
   db:
     container_name: finance-tracker-db

@@ -4,6 +4,12 @@ FROM node:20-slim
 # Crear y establecer el directorio de trabajo
 WORKDIR /usr/src/app
 
+# Instalar OpenSSL y otras dependencias necesarias
+RUN apt-get update -y && \
+    apt-get install -y openssl && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
 # Copiar archivos de configuración
 COPY package*.json ./
 COPY tsconfig.json ./
