@@ -3,6 +3,7 @@ import type { Express, Request, Response } from 'express';
 import cors from 'cors';
 import config from './config';
 import errorMiddleware from './middlewares/error.middleware';
+import transactionRoutes from './routes/transaction.routes';
 
 const app: Express = express();
 
@@ -19,6 +20,9 @@ app.use(express.json());
 app.get('/health', (_req: Request, res: Response) => {
   res.status(200).json({ status: 'ok' });
 });
+
+// Transaction routes
+app.use(`${config.api.prefix}/transactions`, transactionRoutes);
 
 // Error handling
 app.use(errorMiddleware);
