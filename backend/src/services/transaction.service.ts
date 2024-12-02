@@ -1,16 +1,36 @@
 import { PrismaClient } from '@prisma/client';
-import { CreateTransactionDTO, TransactionFilters, Transaction, TransactionType } from '../types';
+import {
+  CreateTransactionDTO,
+  TransactionFilters,
+  Transaction,
+  TransactionType,
+  TRANSACTION_CATEGORIES,
+  TransactionCategory,
+} from '../types';
 import { ValidationError } from '../utils/error.util';
 
 const prisma = new PrismaClient();
 
 class TransactionService {
+  private validateCategory(type: TransactionType, category: TransactionCategory): void {
+    const validCategories = TRANSACTION_CATEGORIES[type];
+    const validCategorySet = new Set(validCategories);
+    if (!validCategorySet.has(category)) {
+      throw new ValidationError(
+        `Invalid category for ${type}. Valid categories are: ${validCategories.join(', ')}`
+      );
+    }
+  }
+
   // Method to create a new transaction
   async createTransaction(data: CreateTransactionDTO): Promise<Transaction> {
-    // Validate business logic if needed
+    // Validate amount
     if (data.amount <= 0) {
       throw new ValidationError('Amount must be greater than zero');
     }
+
+    // Validate category
+    this.validateCategory(data.type, data.category);
 
     // Create transaction using Prisma
     const transaction = await prisma.transaction.create({
@@ -24,6 +44,7 @@ class TransactionService {
     return {
       ...transaction,
       type: transaction.type as TransactionType,
+      category: transaction.category as TransactionCategory,
       amount: transaction.amount.toNumber(),
     };
   }
@@ -48,6 +69,7 @@ class TransactionService {
     return transactions.map((transaction) => ({
       ...transaction,
       type: transaction.type as TransactionType,
+      category: transaction.category as TransactionCategory,
       amount: transaction.amount.toNumber(),
     }));
   }

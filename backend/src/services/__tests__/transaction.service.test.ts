@@ -1,6 +1,7 @@
 import TransactionService from '../transaction.service';
 import { PrismaClient } from '@prisma/client';
-import { TransactionType } from '../../types';
+import { TransactionType, TransactionCategory, TRANSACTION_CATEGORIES } from '../../types';
+import { ValidationError } from '../../utils/error.util';
 
 // Mock Prisma Client
 jest.mock('@prisma/client', () => {
@@ -140,6 +141,62 @@ describe('TransactionService', () => {
       orderBy: {
         date: 'desc',
       },
+    });
+  });
+
+  describe('category validation', () => {
+    it('should create a transaction with valid category', async () => {
+      const validCategory = TRANSACTION_CATEGORIES[TransactionType.INCOME][0];
+      const mockTransaction = {
+        id: '1',
+        type: TransactionType.INCOME,
+        category: validCategory,
+        amount: 1000,
+        date: new Date(),
+        userId: 'user-1',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      (prisma.transaction.create as jest.Mock).mockResolvedValue({
+        ...mockTransaction,
+        amount: { toNumber: () => mockTransaction.amount },
+      });
+
+      const result = await TransactionService.createTransaction({
+        type: TransactionType.INCOME,
+        category: validCategory,
+        amount: 1000,
+        date: new Date(),
+      });
+
+      expect(result).toEqual(mockTransaction);
+    });
+
+    it('should throw error for invalid category', async () => {
+      const invalidCategory = 'Invalid Category' as TransactionCategory;
+
+      await expect(
+        TransactionService.createTransaction({
+          type: TransactionType.INCOME,
+          category: invalidCategory,
+          amount: 1000,
+          date: new Date(),
+        })
+      ).rejects.toThrow(ValidationError);
+    });
+
+    it('should throw error when using expense category for income', async () => {
+      const expenseCategory = TRANSACTION_CATEGORIES[TransactionType.EXPENSE][0];
+
+      await expect(
+        TransactionService.createTransaction({
+          type: TransactionType.INCOME,
+          category: expenseCategory,
+          amount: 1000,
+          date: new Date(),
+        })
+      ).rejects.toThrow(ValidationError);
     });
   });
 });
