@@ -164,7 +164,24 @@ A full-stack application for tracking personal financial goals and transactions.
 ## API Documentation
 Current endpoints:
 - `GET /health`: Health check endpoint
-- Additional endpoints documentation coming soon...
+- `POST /api/v1/transactions`: Create a new transaction
+- `GET /api/v1/transactions`: List transactions with optional filters
+
+### OpenAPI/Swagger Documentation
+The API is documented using OpenAPI/Swagger specification. You can access the interactive documentation at:
+- Local development: http://localhost:3000/api-docs
+
+The Swagger UI provides:
+- Detailed endpoint descriptions
+- Request/response schemas
+- Available transaction types and categories
+- Interactive API testing interface
+
+### Available Transaction Types
+- INCOME
+- EXPENSE
+
+Each type has its predefined categories which can be found in the Swagger documentation under the `TransactionCategories` schema.
 
 ## Troubleshooting Guide
 1. **Database Connection Issues**
