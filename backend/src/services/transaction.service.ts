@@ -39,6 +39,9 @@ class TransactionService {
           lte: filters.endDate,
         },
       },
+      orderBy: {
+        date: 'desc',
+      },
     });
 
     // Map each transaction to match the Transaction interface

@@ -89,6 +89,57 @@ describe('TransactionService', () => {
           lte: undefined,
         },
       },
+      orderBy: {
+        date: 'desc',
+      },
+    });
+  });
+
+  it('should list transactions in descending order by date', async () => {
+    const date1 = new Date('2024-01-01');
+    const date2 = new Date('2024-01-02');
+
+    const mockTransactions = [
+      {
+        id: '2',
+        type: TransactionType.INCOME,
+        category: 'Salary',
+        amount: { toNumber: () => 2000 },
+        date: date2, // More recent date
+        userId: 'user-1',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        id: '1',
+        type: TransactionType.INCOME,
+        category: 'Salary',
+        amount: { toNumber: () => 1000 },
+        date: date1, // Older date
+        userId: 'user-1',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ];
+
+    (prisma.transaction.findMany as jest.Mock).mockResolvedValue(mockTransactions);
+
+    const result = await TransactionService.listTransactions({});
+
+    expect(result[0].date).toEqual(date2); // More recent date should be first
+    expect(result[1].date).toEqual(date1); // Older date should be second
+    expect(prisma.transaction.findMany).toHaveBeenCalledWith({
+      where: {
+        type: undefined,
+        category: undefined,
+        date: {
+          gte: undefined,
+          lte: undefined,
+        },
+      },
+      orderBy: {
+        date: 'desc',
+      },
     });
   });
 });
