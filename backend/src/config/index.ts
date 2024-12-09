@@ -19,6 +19,10 @@ const config = {
     windowMs: parseInt(process.env.RATE_LIMIT_WINDOW || '900000', 10), // 15 minutos
     max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '100', 10),
   },
+  jwt: {
+    secret: process.env.JWT_SECRET || 'your-secret-key',
+    expiresIn: process.env.JWT_EXPIRES_IN || '24h',
+  },
 };
 
 export default config;
