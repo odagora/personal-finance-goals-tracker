@@ -4,8 +4,12 @@ import {
   validateTransaction,
   validateTransactionFilters,
 } from '../middlewares/validation.middleware';
+import { authenticateToken } from '../middlewares/auth.middleware';
 
 const router = Router();
+
+// Apply authentication middleware to all transaction routes
+router.use(authenticateToken);
 
 /**
  * @openapi
@@ -33,10 +37,12 @@ const router = Router();
  *
  * /api/v1/transactions:
  *   post:
+ *     security:
+ *       - bearerAuth: []
  *     tags:
  *       - Transactions
  *     summary: Create a new transaction
- *     description: Create a new transaction with the specified type and category. See TransactionCategories schema for available categories.
+ *     description: Create a new transaction with the specified type and category. Requires authentication.
  *     requestBody:
  *       required: true
  *       content:
@@ -63,10 +69,12 @@ router.post('/', validateTransaction, TransactionController.createTransaction);
  * @openapi
  * /api/v1/transactions:
  *   get:
+ *     security:
+ *       - bearerAuth: []
  *     tags:
  *       - Transactions
  *     summary: List transactions with optional filters
- *     description: Retrieve a list of transactions with optional filtering. See TransactionCategories schema for valid categories.
+ *     description: Retrieve a list of transactions with optional filtering. Requires authentication.
  *     parameters:
  *       - in: query
  *         name: type

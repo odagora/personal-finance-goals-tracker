@@ -23,7 +23,7 @@ class TransactionService {
   }
 
   // Method to create a new transaction
-  async createTransaction(data: CreateTransactionDTO): Promise<Transaction> {
+  async createTransaction(data: CreateTransactionDTO, userId: string): Promise<Transaction> {
     // Validate amount
     if (data.amount <= 0) {
       throw new ValidationError('Amount must be greater than zero');
@@ -36,7 +36,7 @@ class TransactionService {
     const transaction = await prisma.transaction.create({
       data: {
         ...data,
-        userId: 'some-user-id', // Replace with actual user ID from context
+        userId,
       },
     });
 
@@ -50,9 +50,10 @@ class TransactionService {
   }
 
   // Method to list transactions with optional filters
-  async listTransactions(filters: TransactionFilters): Promise<Transaction[]> {
+  async listTransactions(filters: TransactionFilters, userId: string): Promise<Transaction[]> {
     const transactions = await prisma.transaction.findMany({
       where: {
+        userId,
         type: filters.type,
         category: filters.category,
         date: {

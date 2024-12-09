@@ -6,6 +6,7 @@ import { specs } from './config/swagger.config';
 import config from './config';
 import errorMiddleware from './middlewares/error.middleware';
 import transactionRoutes from './routes/transaction.routes';
+import authRoutes from './routes/auth.routes';
 
 const app: Express = express();
 
@@ -27,6 +28,7 @@ app.get('/health', (_req: Request, res: Response) => {
 });
 
 // API routes
+app.use(`${config.api.prefix}/auth`, authRoutes);
 app.use(`${config.api.prefix}/transactions`, transactionRoutes);
 
 // Error handling
