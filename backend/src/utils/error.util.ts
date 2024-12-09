@@ -14,3 +14,13 @@ export class ValidationError extends Error implements AppError {
 export const createValidationError = (errors: string[]): ValidationError => {
   return new ValidationError(errors.join(', '));
 };
+
+export class AuthError extends Error implements AppError {
+  statusCode: number;
+
+  constructor(message: string) {
+    super(message);
+    this.name = 'AuthError';
+    this.statusCode = 401;
+  }
+}
