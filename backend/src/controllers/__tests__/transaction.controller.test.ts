@@ -1,7 +1,11 @@
 import request from 'supertest';
-import app from '../../server';
 import { PrismaClient } from '@prisma/client';
 import { TransactionType } from '../../types';
+import jwt from 'jsonwebtoken';
+import config from '../../config';
+
+// Import app, not server
+import app from '../../app';
 
 // Mock Prisma Client
 jest.mock('@prisma/client', () => {
@@ -16,6 +20,18 @@ jest.mock('@prisma/client', () => {
 
 const prisma = new PrismaClient();
 
+// Test constants
+const TEST_USER = {
+  id: 'test-user-id',
+  email: 'test@example.com',
+};
+
+const getAuthToken = () => {
+  return jwt.sign({ userId: TEST_USER.id, email: TEST_USER.email }, config.jwt.secret, {
+    expiresIn: '1h',
+  });
+};
+
 describe('TransactionController', () => {
   afterEach(() => {
     jest.clearAllMocks();
@@ -28,7 +44,7 @@ describe('TransactionController', () => {
       category: 'Salary',
       amount: 1000,
       date: new Date().toISOString(),
-      userId: 'user-1',
+      userId: TEST_USER.id,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -38,6 +54,21 @@ describe('TransactionController', () => {
       amount: { toNumber: () => mockTransaction.amount },
     });
 
+    const response = await request(app)
+      .post('/api/v1/transactions')
+      .set('Authorization', `Bearer ${getAuthToken()}`)
+      .send({
+        type: TransactionType.INCOME,
+        category: 'Salary',
+        amount: 1000,
+        date: new Date().toISOString(),
+      });
+
+    expect(response.status).toBe(201);
+    expect(response.body).toEqual(mockTransaction);
+  });
+
+  it('should return 401 when creating transaction without auth token', async () => {
     const response = await request(app).post('/api/v1/transactions').send({
       type: TransactionType.INCOME,
       category: 'Salary',
@@ -45,8 +76,8 @@ describe('TransactionController', () => {
       date: new Date().toISOString(),
     });
 
-    expect(response.status).toBe(201);
-    expect(response.body).toEqual(mockTransaction);
+    expect(response.status).toBe(401);
+    expect(response.body).toHaveProperty('message', 'No token provided');
   });
 
   it('should list transactions', async () => {
@@ -57,7 +88,7 @@ describe('TransactionController', () => {
         category: 'Salary',
         amount: { toNumber: () => 1000 },
         date: new Date().toISOString(),
-        userId: 'user-1',
+        userId: TEST_USER.id,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       },
@@ -65,7 +96,9 @@ describe('TransactionController', () => {
 
     (prisma.transaction.findMany as jest.Mock).mockResolvedValue(mockTransactions);
 
-    const response = await request(app).get('/api/v1/transactions');
+    const response = await request(app)
+      .get('/api/v1/transactions')
+      .set('Authorization', `Bearer ${getAuthToken()}`);
 
     expect(response.status).toBe(200);
     expect(response.body).toEqual([
@@ -74,5 +107,12 @@ describe('TransactionController', () => {
         amount: 1000,
       },
     ]);
+  });
+
+  it('should return 401 when listing transactions without auth token', async () => {
+    const response = await request(app).get('/api/v1/transactions');
+
+    expect(response.status).toBe(401);
+    expect(response.body).toHaveProperty('message', 'No token provided');
   });
 });

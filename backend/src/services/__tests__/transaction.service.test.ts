@@ -15,6 +15,7 @@ jest.mock('@prisma/client', () => {
 });
 
 const prisma = new PrismaClient();
+const TEST_USER_ID = 'test-user-id';
 
 describe('TransactionService', () => {
   afterEach(() => {
@@ -28,7 +29,7 @@ describe('TransactionService', () => {
       category: 'Salary',
       amount: 1000,
       date: new Date(),
-      userId: 'user-1',
+      userId: TEST_USER_ID,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -38,12 +39,15 @@ describe('TransactionService', () => {
       amount: { toNumber: () => mockTransaction.amount },
     });
 
-    const result = await TransactionService.createTransaction({
-      type: TransactionType.INCOME,
-      category: 'Salary',
-      amount: 1000,
-      date: new Date(),
-    });
+    const result = await TransactionService.createTransaction(
+      {
+        type: TransactionType.INCOME,
+        category: 'Salary',
+        amount: 1000,
+        date: new Date(),
+      },
+      TEST_USER_ID
+    );
 
     expect(result).toEqual(mockTransaction);
     expect(prisma.transaction.create).toHaveBeenCalledWith({
@@ -52,7 +56,7 @@ describe('TransactionService', () => {
         category: 'Salary',
         amount: 1000,
         date: expect.any(Date),
-        userId: 'some-user-id',
+        userId: TEST_USER_ID,
       },
     });
   });
@@ -65,7 +69,7 @@ describe('TransactionService', () => {
         category: 'Salary',
         amount: { toNumber: () => 1000 },
         date: new Date(),
-        userId: 'user-1',
+        userId: TEST_USER_ID,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -73,7 +77,7 @@ describe('TransactionService', () => {
 
     (prisma.transaction.findMany as jest.Mock).mockResolvedValue(mockTransactions);
 
-    const result = await TransactionService.listTransactions({});
+    const result = await TransactionService.listTransactions({}, TEST_USER_ID);
 
     expect(result).toEqual([
       {
@@ -83,6 +87,7 @@ describe('TransactionService', () => {
     ]);
     expect(prisma.transaction.findMany).toHaveBeenCalledWith({
       where: {
+        userId: TEST_USER_ID,
         type: undefined,
         category: undefined,
         date: {
@@ -107,7 +112,7 @@ describe('TransactionService', () => {
         category: 'Salary',
         amount: { toNumber: () => 2000 },
         date: date2, // More recent date
-        userId: 'user-1',
+        userId: TEST_USER_ID,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -117,7 +122,7 @@ describe('TransactionService', () => {
         category: 'Salary',
         amount: { toNumber: () => 1000 },
         date: date1, // Older date
-        userId: 'user-1',
+        userId: TEST_USER_ID,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -125,12 +130,13 @@ describe('TransactionService', () => {
 
     (prisma.transaction.findMany as jest.Mock).mockResolvedValue(mockTransactions);
 
-    const result = await TransactionService.listTransactions({});
+    const result = await TransactionService.listTransactions({}, TEST_USER_ID);
 
     expect(result[0].date).toEqual(date2); // More recent date should be first
     expect(result[1].date).toEqual(date1); // Older date should be second
     expect(prisma.transaction.findMany).toHaveBeenCalledWith({
       where: {
+        userId: TEST_USER_ID,
         type: undefined,
         category: undefined,
         date: {
@@ -153,7 +159,7 @@ describe('TransactionService', () => {
         category: validCategory,
         amount: 1000,
         date: new Date(),
-        userId: 'user-1',
+        userId: TEST_USER_ID,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -163,12 +169,15 @@ describe('TransactionService', () => {
         amount: { toNumber: () => mockTransaction.amount },
       });
 
-      const result = await TransactionService.createTransaction({
-        type: TransactionType.INCOME,
-        category: validCategory,
-        amount: 1000,
-        date: new Date(),
-      });
+      const result = await TransactionService.createTransaction(
+        {
+          type: TransactionType.INCOME,
+          category: validCategory,
+          amount: 1000,
+          date: new Date(),
+        },
+        TEST_USER_ID
+      );
 
       expect(result).toEqual(mockTransaction);
     });
@@ -177,12 +186,15 @@ describe('TransactionService', () => {
       const invalidCategory = 'Invalid Category' as TransactionCategory;
 
       await expect(
-        TransactionService.createTransaction({
-          type: TransactionType.INCOME,
-          category: invalidCategory,
-          amount: 1000,
-          date: new Date(),
-        })
+        TransactionService.createTransaction(
+          {
+            type: TransactionType.INCOME,
+            category: invalidCategory,
+            amount: 1000,
+            date: new Date(),
+          },
+          TEST_USER_ID
+        )
       ).rejects.toThrow(ValidationError);
     });
 
@@ -190,12 +202,15 @@ describe('TransactionService', () => {
       const expenseCategory = TRANSACTION_CATEGORIES[TransactionType.EXPENSE][0];
 
       await expect(
-        TransactionService.createTransaction({
-          type: TransactionType.INCOME,
-          category: expenseCategory,
-          amount: 1000,
-          date: new Date(),
-        })
+        TransactionService.createTransaction(
+          {
+            type: TransactionType.INCOME,
+            category: expenseCategory,
+            amount: 1000,
+            date: new Date(),
+          },
+          TEST_USER_ID
+        )
       ).rejects.toThrow(ValidationError);
     });
   });

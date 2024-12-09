@@ -157,7 +157,16 @@ A full-stack application for tracking personal financial goals and transactions.
 - `npm run dev`: Start development server with hot-reload
 - `npm run build`: Compile TypeScript for production
 - `npm start`: Run production server
-- `npm test`: Run test suite
+- `npm test`: Run test suite with Jest
+  - Local: `npm test`
+  - Docker: `docker compose exec app npm test`
+  - Watch mode:
+    - Local: `npm test -- --watch`
+    - Docker: `docker compose exec -it app npm test -- --watchAll`
+  - Coverage: `npm test -- --coverage`
+  - Specific file: `docker compose exec app npm test path/to/test.ts`
+  - Pattern match: `docker compose exec app npm test -- -t "pattern"`
+  - Directory: `docker compose exec app npm test path/to/directory/`
 - `npm run lint`: Check code style
 - `npm run format`: Format code
 

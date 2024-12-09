@@ -12,5 +12,6 @@ module.exports = {
     '!src/**/*.d.ts',
     '!src/server.ts'
   ],
-  coverageReporters: ['text', 'html']
+  coverageReporters: ['html'],
+  silent: true,
 };
