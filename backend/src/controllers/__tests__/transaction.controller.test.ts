@@ -115,4 +115,64 @@ describe('TransactionController', () => {
     expect(response.status).toBe(401);
     expect(response.body).toHaveProperty('message', 'No token provided');
   });
+
+  describe('Transaction Filters', () => {
+    it('should filter transactions by type', async () => {
+      const mockTransactions = [
+        {
+          id: '1',
+          type: TransactionType.INCOME,
+          category: 'Salary',
+          amount: { toNumber: () => 1000 },
+          date: new Date().toISOString(),
+          userId: TEST_USER.id,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+      ];
+
+      (prisma.transaction.findMany as jest.Mock).mockResolvedValue(mockTransactions);
+
+      const response = await request(app)
+        .get('/api/v1/transactions?type=INCOME')
+        .set('Authorization', `Bearer ${getAuthToken()}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual([
+        {
+          ...mockTransactions[0],
+          amount: 1000,
+        },
+      ]);
+    });
+
+    it('should filter transactions by category', async () => {
+      const mockTransactions = [
+        {
+          id: '1',
+          type: TransactionType.INCOME,
+          category: 'Salary',
+          amount: { toNumber: () => 1000 },
+          date: new Date().toISOString(),
+          userId: TEST_USER.id,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+      ];
+
+      (prisma.transaction.findMany as jest.Mock).mockResolvedValue(mockTransactions);
+
+      const response = await request(app)
+        .get('/api/v1/transactions?category=Salary')
+        .set('Authorization', `Bearer ${getAuthToken()}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual([
+        {
+          ...mockTransactions[0],
+          amount: 1000,
+        },
+      ]);
+    });
+  });
 });
