@@ -41,8 +41,17 @@ Node.js + Express + TypeScript backend for the Personal Finance Goals Tracker ap
    # Run migrations
    npx prisma migrate dev
    ```
+3. **Seed the database**
+   ```bash
+   # Run all seeds
+   npx prisma db seed
 
-3. **Environment Configuration**
+   # Run specific seeds (optional)
+   npx ts-node prisma/seeds/create-user.ts
+   npx ts-node prisma/seeds/create-transactions.ts
+   ```
+
+4. **Environment Configuration**
    ```bash
    # Copy environment template
    cp .env.example .env
@@ -53,7 +62,7 @@ Node.js + Express + TypeScript backend for the Personal Finance Goals Tracker ap
    PORT=3000
    ```
 
-4. **Start Development Server**
+5. **Start Development Server**
    ```bash
    npm run dev
    ```
@@ -176,6 +185,15 @@ This project can be run in a Docker container. For Docker-based development:
 
    # Run tests
    docker compose exec app npm test
+   # Seed the database
+   docker compose exec app npx prisma db seed
+
+   # Run specific seeds (optional)
+   docker compose exec app npx ts-node prisma/seeds/create-user.ts
+   docker compose exec app npx ts-node prisma/seeds/create-transactions.ts
+
+   # Access database CLI
+   docker compose exec db psql -U postgres -d finance_tracker
    ```
 
 For full Docker setup including frontend services, refer to the [main README](../README.md).
