@@ -21,6 +21,8 @@ const router = Router();
  *             required:
  *               - email
  *               - password
+ *               - firstName
+ *               - lastName
  *             properties:
  *               email:
  *                 type: string
@@ -28,6 +30,14 @@ const router = Router();
  *               password:
  *                 type: string
  *                 minLength: 6
+ *               firstName:
+ *                 type: string
+ *                 minLength: 2
+ *                 maxLength: 50
+ *               lastName:
+ *                 type: string
+ *                 minLength: 2
+ *                 maxLength: 50
  */
 router.post(
   '/register',
@@ -36,6 +46,14 @@ router.post(
     body('password')
       .isLength({ min: 6 })
       .withMessage('Password must be at least 6 characters long'),
+    body('firstName')
+      .isLength({ min: 2, max: 50 })
+      .trim()
+      .withMessage('First name must be between 2 and 50 characters'),
+    body('lastName')
+      .isLength({ min: 2, max: 50 })
+      .trim()
+      .withMessage('Last name must be between 2 and 50 characters'),
     validateRequest,
   ],
   async (req: Request, res: Response, next: NextFunction) => {

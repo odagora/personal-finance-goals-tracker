@@ -114,7 +114,17 @@ A full-stack application for tracking personal financial goals and transactions.
    npx prisma migrate dev
    ```
 
-3. **Start development server**
+3. **Seed the database**
+   ```bash
+   # Run all seeds
+   npx prisma db seed
+
+   # Run specific seeds (optional)
+   npx ts-node prisma/seeds/create-user.ts
+   npx ts-node prisma/seeds/create-transactions.ts
+   ```
+
+4. **Start development server**
    ```bash
    npm run dev  # Starts server on http://localhost:3000
    ```
@@ -133,6 +143,13 @@ A full-stack application for tracking personal financial goals and transactions.
    ```bash
    # Run migrations
    docker compose exec app npx prisma migrate dev
+
+   # Seed the database
+   docker compose exec app npx prisma db seed
+
+   # Run specific seeds (optional)
+   docker compose exec app npx ts-node prisma/seeds/create-user.ts
+   docker compose exec app npx ts-node prisma/seeds/create-transactions.ts
 
    # Access database CLI
    docker compose exec db psql -U postgres -d finance_tracker
