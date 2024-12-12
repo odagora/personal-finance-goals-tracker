@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import UserService from '../user.service';
-import { ValidationError, AuthError } from '../../utils/error.util';
+import { AuthError } from '../../utils/error.util';
 
 // Mock Prisma Client
 jest.mock('@prisma/client', () => {
@@ -27,9 +27,20 @@ describe('UserService', () => {
   const mockUser = {
     id: 'test-user-id',
     email: 'test@example.com',
+    firstName: 'John',
+    lastName: 'Doe',
     password: 'hashed_password',
     createdAt: new Date(),
     updatedAt: new Date(),
+  };
+
+  // Create a separate mock for the create response that matches our select clause
+  const mockCreateResponse = {
+    id: mockUser.id,
+    email: mockUser.email,
+    firstName: mockUser.firstName,
+    lastName: mockUser.lastName,
+    createdAt: mockUser.createdAt,
   };
 
   beforeEach(() => {
@@ -39,18 +50,17 @@ describe('UserService', () => {
   describe('register', () => {
     it('should register a new user successfully', async () => {
       (prisma.user.findUnique as jest.Mock).mockResolvedValue(null);
-      (prisma.user.create as jest.Mock).mockResolvedValue(mockUser);
+      (prisma.user.create as jest.Mock).mockResolvedValue(mockCreateResponse);
 
       const result = await UserService.register({
         email: 'test@example.com',
         password: 'password123',
+        firstName: 'John',
+        lastName: 'Doe',
       });
 
       expect(result).toHaveProperty('token');
-      expect(result.user).toEqual({
-        id: mockUser.id,
-        email: mockUser.email,
-      });
+      expect(result.user).toEqual(mockCreateResponse);
       expect(bcrypt.hash).toHaveBeenCalledWith('password123', 'salt');
     });
 
@@ -61,8 +71,10 @@ describe('UserService', () => {
         UserService.register({
           email: 'test@example.com',
           password: 'password123',
+          firstName: 'John',
+          lastName: 'Doe',
         })
-      ).rejects.toThrow(ValidationError);
+      ).rejects.toThrow(AuthError);
     });
   });
 
@@ -80,6 +92,9 @@ describe('UserService', () => {
       expect(result.user).toEqual({
         id: mockUser.id,
         email: mockUser.email,
+        firstName: mockUser.firstName,
+        lastName: mockUser.lastName,
+        createdAt: mockUser.createdAt,
       });
       expect(bcrypt.compare).toHaveBeenCalledWith('password123', mockUser.password);
     });

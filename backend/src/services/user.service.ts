@@ -2,8 +2,8 @@ import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import config from '../config';
-import { CreateUserDTO, LoginDTO, AuthResponse } from '../types/user.types';
-import { ValidationError, AuthError } from '../utils/error.util';
+import { AuthError } from '../utils/error.util';
+import { RegisterUserDTO, LoginUserDTO } from '../types/auth.types';
 
 const prisma = new PrismaClient();
 
@@ -13,66 +13,68 @@ class UserService {
     return bcrypt.hash(password, salt);
   }
 
-  private generateToken(userId: string, email: string): string {
-    return jwt.sign({ userId, email }, config.jwt.secret, { expiresIn: config.jwt.expiresIn });
+  private generateToken(
+    userId: string,
+    email: string,
+    firstName: string,
+    lastName: string
+  ): string {
+    return jwt.sign({ userId, email, firstName, lastName }, config.jwt.secret, {
+      expiresIn: config.jwt.expiresIn,
+    });
   }
 
-  async register(userData: CreateUserDTO): Promise<AuthResponse> {
-    // Check if user already exists
-    const existingUser = await prisma.user.findUnique({
-      where: { email: userData.email },
-    });
-
+  async register({ email, password, firstName, lastName }: RegisterUserDTO) {
+    const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
-      throw new ValidationError('Email already registered');
+      throw new AuthError('Email already registered');
     }
 
-    // Hash password and create user
-    const hashedPassword = await this.hashPassword(userData.password);
+    const hashedPassword = await this.hashPassword(password);
+
     const user = await prisma.user.create({
       data: {
-        email: userData.email,
+        email,
+        firstName,
+        lastName,
         password: hashedPassword,
       },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        createdAt: true,
+      },
     });
 
-    // Generate token
-    const token = this.generateToken(user.id, user.email);
+    const token = this.generateToken(user.id, user.email, user.firstName, user.lastName);
 
-    return {
-      token,
-      user: {
-        id: user.id,
-        email: user.email,
-      },
-    };
+    return { user, token };
   }
 
-  async login(credentials: LoginDTO): Promise<AuthResponse> {
-    // Find user
-    const user = await prisma.user.findUnique({
-      where: { email: credentials.email },
-    });
-
+  async login({ email, password }: LoginUserDTO) {
+    const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
       throw new AuthError('Invalid credentials');
     }
 
-    // Verify password
-    const isValidPassword = await bcrypt.compare(credentials.password, user.password);
+    const isValidPassword = await bcrypt.compare(password, user.password);
     if (!isValidPassword) {
       throw new AuthError('Invalid credentials');
     }
 
-    // Generate token
-    const token = this.generateToken(user.id, user.email);
+    const token = this.generateToken(user.id, user.email, user.firstName, user.lastName);
 
     return {
-      token,
       user: {
         id: user.id,
         email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        createdAt: user.createdAt,
       },
+      token,
     };
   }
 }
