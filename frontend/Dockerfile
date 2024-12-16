@@ -1,5 +1,5 @@
 # Development stage only
-FROM node:20-slim
+FROM node:20-slim AS development
 
 # Install required packages
 RUN apt-get update && \
