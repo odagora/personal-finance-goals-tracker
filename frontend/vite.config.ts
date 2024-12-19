@@ -1,13 +1,15 @@
-import path from 'path';
-import react from '@vitejs/plugin-react';
-import { defineConfig } from 'vite';
+/// <reference types="vite/client" />
 
-// https://vitejs.dev/config/
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import tsconfigPaths from 'vite-tsconfig-paths';
+import { resolve } from 'path';
+
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), tsconfigPaths()],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      '@': resolve(__dirname, './src'),
     },
   },
   server: {
@@ -15,5 +17,6 @@ export default defineConfig({
       usePolling: true,
     },
     host: true,
+    port: 5173,
   },
 });

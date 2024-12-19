@@ -55,13 +55,14 @@ export function Register() {
         password: values.password,
       });
     } catch (error) {
-      // Type guard for error handling
       if (error instanceof Error) {
         form.setError('root', {
+          type: 'manual',
           message: error.message || 'Registration failed. Please try again.',
         });
       } else {
         form.setError('root', {
+          type: 'manual',
           message: 'An unexpected error occurred. Please try again.',
         });
       }
@@ -82,6 +83,12 @@ export function Register() {
       >
         <div className="flex flex-col flex-1 justify-center">
           <div className="flex flex-col space-y-6 w-full max-w-md mx-auto">
+            {form.formState.errors.root && (
+              <div className="p-4 text-sm text-red-500 bg-red-50 rounded-md" role="alert">
+                {form.formState.errors.root.message}
+              </div>
+            )}
+
             <div className="space-y-2">
               <h1 className="text-2xl font-semibold tracking-tight">
                 {formatUpperCase('Create your account')}
