@@ -134,11 +134,6 @@ export function Register() {
                       <FormControl>
                         <Input placeholder="••••••••" type="password" {...field} />
                       </FormControl>
-                      <div className="flex justify-end">
-                        <Link to="#" className="text-sm text-muted-foreground hover:text-primary">
-                          Forgot your password?
-                        </Link>
-                      </div>
                       <FormMessage />
                     </FormItem>
                   )}
