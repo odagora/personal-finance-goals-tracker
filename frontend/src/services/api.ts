@@ -3,7 +3,9 @@ import axios, { InternalAxiosRequestConfig } from 'axios';
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1',
   headers: {
-    'Content-Type': 'application/json',
+    common: {
+      'Content-Type': 'application/json',
+    },
   },
 });
 
@@ -15,3 +17,6 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   }
   return config;
 });
+
+// Check if the API URL is correctly set
+console.log('API URL:', api.defaults.baseURL);
