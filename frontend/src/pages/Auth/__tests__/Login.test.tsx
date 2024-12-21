@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
 import { render, screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, useNavigate } from 'react-router-dom';
 import { Login } from '../Login';
 import { AuthContext } from '@/contexts/auth.context';
 
@@ -26,9 +26,21 @@ const renderWithProviders = (ui: React.ReactNode) => {
   );
 };
 
+// Mock useNavigate
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom');
+  return {
+    ...actual,
+    useNavigate: vi.fn(),
+  };
+});
+
 describe('Login', () => {
+  const mockNavigate = vi.fn();
+
   beforeEach(() => {
     vi.clearAllMocks();
+    (useNavigate as Mock).mockReturnValue(mockNavigate);
   });
 
   it('should render login form', () => {
@@ -167,6 +179,27 @@ describe('Login', () => {
       expect(screen.getByRole('alert')).toHaveTextContent(
         'An unexpected error occurred. Please try again.'
       );
+    });
+  });
+
+  it('should navigate to transactions after successful login', async () => {
+    // Arrange
+    const user = userEvent.setup();
+    renderWithProviders(<Login />);
+    const emailInput = screen.getByLabelText(/EMAIL ADDRESS/i);
+    const passwordInput = screen.getByLabelText(/PASSWORD/i);
+    const submitButton = screen.getByRole('button', { name: /SIGN IN/i });
+
+    // Act
+    await act(async () => {
+      await user.type(emailInput, 'test@example.com');
+      await user.type(passwordInput, 'password123');
+      await user.click(submitButton);
+    });
+
+    // Assert
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith('/transactions');
     });
   });
 });

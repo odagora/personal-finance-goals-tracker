@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/hooks/useAuthContext';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { AuthHeader } from '@/components/auth/AuthHeader';
 import { formatUpperCase } from '@/utils/text';
 import { GoogleIcon } from '@/assets/icons/GoogleIcon';
@@ -21,9 +21,22 @@ import { BankIcon } from '@/assets/icons/BankIcon';
 
 // Define form validation schema
 const registerSchema = z.object({
-  name: z.string().min(2, {
-    message: 'Name must be at least 2 characters.',
-  }),
+  firstName: z
+    .string()
+    .min(2, {
+      message: 'First name must be at least 2 characters.',
+    })
+    .max(50, {
+      message: 'First name must be less than 50 characters.',
+    }),
+  lastName: z
+    .string()
+    .min(2, {
+      message: 'Last name must be at least 2 characters.',
+    })
+    .max(50, {
+      message: 'Last name must be less than 50 characters.',
+    }),
   email: z.string().email({
     message: 'Please enter a valid email address.',
   }),
@@ -36,11 +49,13 @@ type RegisterFormValues = z.infer<typeof registerSchema>;
 
 export function Register() {
   const { register } = useAuth();
+  const navigate = useNavigate();
 
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
-      name: '',
+      firstName: '',
+      lastName: '',
       email: '',
       password: '',
     },
@@ -50,11 +65,14 @@ export function Register() {
   async function onSubmit(values: RegisterFormValues) {
     try {
       await register({
-        name: values.name,
+        firstName: values.firstName,
+        lastName: values.lastName,
         email: values.email,
         password: values.password,
       });
+      navigate('/transactions');
     } catch (error) {
+      console.error('Registration error:', error);
       if (error instanceof Error) {
         form.setError('root', {
           type: 'manual',
@@ -97,19 +115,35 @@ export function Register() {
 
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{formatUpperCase('Full name')}</FormLabel>
-                      <FormControl>
-                        <Input placeholder="John Doe" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="firstName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{formatUpperCase('First name')}</FormLabel>
+                        <FormControl>
+                          <Input placeholder="John" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="lastName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{formatUpperCase('Last name')}</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Doe" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
                 <FormField
                   control={form.control}

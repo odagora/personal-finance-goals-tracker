@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/hooks/useAuthContext';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { AuthHeader } from '@/components/auth/AuthHeader';
 import { formatUpperCase } from '@/utils/text';
 import { GoogleIcon } from '@/assets/icons/GoogleIcon';
@@ -33,6 +33,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 
 export function Login() {
   const { login } = useAuth();
+  const navigate = useNavigate();
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -49,6 +50,7 @@ export function Login() {
         email: values.email,
         password: values.password,
       });
+      navigate('/transactions');
     } catch (error) {
       if (error instanceof Error) {
         form.setError('root', {

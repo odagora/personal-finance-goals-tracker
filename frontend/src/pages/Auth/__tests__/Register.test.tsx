@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest';
 import { render, screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, useNavigate } from 'react-router-dom';
 import { Register } from '../Register';
 import { AuthContext } from '@/contexts/auth.context';
 
@@ -17,6 +17,15 @@ const mockAuthContext = {
   logout: vi.fn(),
 };
 
+// Mock useNavigate
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom');
+  return {
+    ...actual,
+    useNavigate: vi.fn(),
+  };
+});
+
 // Test wrapper with providers
 const renderWithProviders = (ui: React.ReactNode) => {
   return render(
@@ -27,8 +36,11 @@ const renderWithProviders = (ui: React.ReactNode) => {
 };
 
 describe('Register', () => {
+  const mockNavigate = vi.fn();
+
   beforeEach(() => {
     vi.clearAllMocks();
+    (useNavigate as Mock).mockReturnValue(mockNavigate);
   });
 
   it('should render registration form', () => {
@@ -37,7 +49,8 @@ describe('Register', () => {
 
     // Assert
     expect(screen.getByText(/CREATE YOUR ACCOUNT/i)).toBeInTheDocument();
-    expect(screen.getByLabelText(/FULL NAME/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/FIRST NAME/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/LAST NAME/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/EMAIL ADDRESS/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/PASSWORD/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /SIGN UP/i })).toBeInTheDocument();
@@ -56,7 +69,8 @@ describe('Register', () => {
 
     // Assert
     await waitFor(() => {
-      expect(screen.getByText(/Name must be at least 2 characters/i)).toBeInTheDocument();
+      expect(screen.getByText(/First name must be at least 2 characters/i)).toBeInTheDocument();
+      expect(screen.getByText(/Last name must be at least 2 characters/i)).toBeInTheDocument();
       expect(screen.getByText(/Please enter a valid email address/i)).toBeInTheDocument();
       expect(screen.getByText(/Password must be at least 8 characters/i)).toBeInTheDocument();
     });
@@ -66,14 +80,16 @@ describe('Register', () => {
     // Arrange
     const user = userEvent.setup();
     renderWithProviders(<Register />);
-    const nameInput = screen.getByLabelText(/FULL NAME/i);
+    const firstNameInput = screen.getByLabelText(/FIRST NAME/i);
+    const lastNameInput = screen.getByLabelText(/LAST NAME/i);
     const emailInput = screen.getByLabelText(/EMAIL ADDRESS/i);
     const passwordInput = screen.getByLabelText(/PASSWORD/i);
     const submitButton = screen.getByRole('button', { name: /SIGN UP/i });
 
     // Act
     await act(async () => {
-      await user.type(nameInput, 'John Doe');
+      await user.type(firstNameInput, 'John');
+      await user.type(lastNameInput, 'Doe');
       await user.type(emailInput, 'john@example.com');
       await user.type(passwordInput, 'password123');
       await user.click(submitButton);
@@ -82,7 +98,8 @@ describe('Register', () => {
     // Assert
     await waitFor(() => {
       expect(mockRegister).toHaveBeenCalledWith({
-        name: 'John Doe',
+        firstName: 'John',
+        lastName: 'Doe',
         email: 'john@example.com',
         password: 'password123',
       });
@@ -94,14 +111,16 @@ describe('Register', () => {
     mockRegister.mockRejectedValueOnce(new Error('Registration failed. Please try again.'));
     const user = userEvent.setup();
     renderWithProviders(<Register />);
-    const nameInput = screen.getByLabelText(/FULL NAME/i);
+    const firstNameInput = screen.getByLabelText(/FIRST NAME/i);
+    const lastNameInput = screen.getByLabelText(/LAST NAME/i);
     const emailInput = screen.getByLabelText(/EMAIL ADDRESS/i);
     const passwordInput = screen.getByLabelText(/PASSWORD/i);
     const submitButton = screen.getByRole('button', { name: /SIGN UP/i });
 
     // Act
     await act(async () => {
-      await user.type(nameInput, 'John Doe');
+      await user.type(firstNameInput, 'John');
+      await user.type(lastNameInput, 'Doe');
       await user.type(emailInput, 'john@example.com');
       await user.type(passwordInput, 'password123');
       await user.click(submitButton);
@@ -113,22 +132,22 @@ describe('Register', () => {
     });
   });
 
-  it('should validate email format', async () => {
+  it('should validate name length', async () => {
     // Arrange
     const user = userEvent.setup();
     renderWithProviders(<Register />);
-    const nameInput = screen.getByLabelText(/FULL NAME/i);
+    const firstNameInput = screen.getByLabelText(/FIRST NAME/i);
     const submitButton = screen.getByRole('button', { name: /SIGN UP/i });
 
     // Act
     await act(async () => {
-      await user.type(nameInput, 'invalid-email');
+      await user.type(firstNameInput, 'J');
       await user.click(submitButton);
     });
 
     // Assert
     await waitFor(() => {
-      expect(screen.getByText(/Please enter a valid email address/i)).toBeInTheDocument();
+      expect(screen.getByText(/First name must be at least 2 characters/i)).toBeInTheDocument();
     });
   });
 
@@ -157,14 +176,16 @@ describe('Register', () => {
     mockRegister.mockRejectedValueOnce('Unexpected error');
     renderWithProviders(<Register />);
 
-    const nameInput = screen.getByLabelText(/FULL NAME/i);
+    const firstNameInput = screen.getByLabelText(/FIRST NAME/i);
+    const lastNameInput = screen.getByLabelText(/LAST NAME/i);
     const emailInput = screen.getByLabelText(/EMAIL ADDRESS/i);
     const passwordInput = screen.getByLabelText(/PASSWORD/i);
     const submitButton = screen.getByRole('button', { name: /SIGN UP/i });
 
     // Act
     await act(async () => {
-      await user.type(nameInput, 'John Doe');
+      await user.type(firstNameInput, 'John');
+      await user.type(lastNameInput, 'Doe');
       await user.type(emailInput, 'john@example.com');
       await user.type(passwordInput, 'password123');
       await user.click(submitButton);
@@ -175,6 +196,31 @@ describe('Register', () => {
       expect(screen.getByRole('alert')).toHaveTextContent(
         'An unexpected error occurred. Please try again.'
       );
+    });
+  });
+
+  it('should navigate to transactions after successful registration', async () => {
+    // Arrange
+    const user = userEvent.setup();
+    renderWithProviders(<Register />);
+    const firstNameInput = screen.getByLabelText(/FIRST NAME/i);
+    const lastNameInput = screen.getByLabelText(/LAST NAME/i);
+    const emailInput = screen.getByLabelText(/EMAIL ADDRESS/i);
+    const passwordInput = screen.getByLabelText(/PASSWORD/i);
+    const submitButton = screen.getByRole('button', { name: /SIGN UP/i });
+
+    // Act
+    await act(async () => {
+      await user.type(firstNameInput, 'John');
+      await user.type(lastNameInput, 'Doe');
+      await user.type(emailInput, 'test@example.com');
+      await user.type(passwordInput, 'password123');
+      await user.click(submitButton);
+    });
+
+    // Assert
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith('/transactions');
     });
   });
 });

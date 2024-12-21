@@ -18,8 +18,11 @@ export interface LoginCredentials {
   password: string;
 }
 
-export interface RegisterCredentials extends LoginCredentials {
-  name: string;
+export interface RegisterCredentials {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
 }
 
 export interface AuthContextType extends AuthState {
