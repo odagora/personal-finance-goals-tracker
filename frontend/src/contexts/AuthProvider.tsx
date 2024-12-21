@@ -1,7 +1,7 @@
-import { useEffect, useState, createContext } from 'react';
+import { useEffect, useState } from 'react';
 import { AuthState, LoginCredentials, RegisterCredentials } from '@/types/auth';
-import { AuthContextType } from '@/types/auth';
 import { api } from '@/services/api';
+import { AuthContext } from './auth.context';
 
 const initialState: AuthState = {
   user: null,
@@ -10,9 +10,7 @@ const initialState: AuthState = {
   isLoading: true,
 };
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-function AuthProvider({ children }: { children: React.ReactNode }) {
+export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<AuthState>(initialState);
 
   useEffect(() => {
@@ -94,5 +92,3 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
     </AuthContext.Provider>
   );
 }
-
-export { AuthContext, AuthProvider };

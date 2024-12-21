@@ -3,7 +3,7 @@ import { render, screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
 import { Register } from '../Register';
-import { AuthContext } from '@/contexts/AuthProvider';
+import { AuthContext } from '@/contexts/auth.context';
 
 // Mock auth context
 const mockRegister = vi.fn();
