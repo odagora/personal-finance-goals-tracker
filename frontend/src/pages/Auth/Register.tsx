@@ -72,18 +72,10 @@ export function Register() {
       });
       navigate('/transactions');
     } catch (error) {
-      console.error('Registration error:', error);
-      if (error instanceof Error) {
-        form.setError('root', {
-          type: 'manual',
-          message: error.message || 'Registration failed. Please try again.',
-        });
-      } else {
-        form.setError('root', {
-          type: 'manual',
-          message: 'An unexpected error occurred. Please try again.',
-        });
-      }
+      form.setError('root', {
+        type: 'manual',
+        message: error instanceof Error ? error.message : 'An unexpected error occurred',
+      });
     }
   }
 

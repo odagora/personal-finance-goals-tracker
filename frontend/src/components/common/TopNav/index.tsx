@@ -1,9 +1,15 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuthContext';
 
 export function TopNav() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = () => {
+    logout();
+    navigate('/auth/login');
+  };
 
   return (
     <header className="border-b">
@@ -22,7 +28,7 @@ export function TopNav() {
               </Button>
             </>
           ) : (
-            <Button variant="ghost" onClick={() => {}}>
+            <Button variant="ghost" onClick={handleSignOut}>
               Sign Out
             </Button>
           )}

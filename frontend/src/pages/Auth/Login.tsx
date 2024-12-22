@@ -52,17 +52,10 @@ export function Login() {
       });
       navigate('/transactions');
     } catch (error) {
-      if (error instanceof Error) {
-        form.setError('root', {
-          type: 'manual',
-          message: error.message || 'Login failed. Please try again.',
-        });
-      } else {
-        form.setError('root', {
-          type: 'manual',
-          message: 'An unexpected error occurred. Please try again.',
-        });
-      }
+      form.setError('root', {
+        type: 'manual',
+        message: error instanceof Error ? error.message : 'An unexpected error occurred',
+      });
     }
   }
 

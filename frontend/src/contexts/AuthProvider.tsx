@@ -3,6 +3,7 @@ import { AuthState, LoginCredentials, RegisterCredentials } from '@/types/auth';
 import { api } from '@/services/api';
 import { AuthContext } from './auth.context';
 import { jwtDecode, JwtPayload } from 'jwt-decode';
+import { AxiosError } from 'axios';
 
 // Add interface for JWT payload
 interface JWTPayload extends JwtPayload {
@@ -10,6 +11,13 @@ interface JWTPayload extends JwtPayload {
   email: string;
   firstName: string;
   lastName: string;
+}
+
+// Add interface for API error response
+interface ApiErrorResponse {
+  message: string;
+  statusCode: number;
+  status: string;
 }
 
 const initialState: AuthState = {
@@ -64,33 +72,49 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = async (credentials: LoginCredentials) => {
-    const response = await api.post('/auth/login', credentials);
-    const { token, user } = response.data;
+    try {
+      const response = await api.post('/auth/login', credentials);
+      const { token, user } = response.data;
 
-    localStorage.setItem('token', token);
-    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      localStorage.setItem('token', token);
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
-    setState({
-      user,
-      token,
-      isAuthenticated: true,
-      isLoading: false,
-    });
+      setState({
+        user,
+        token,
+        isAuthenticated: true,
+        isLoading: false,
+      });
+    } catch (error) {
+      if (error instanceof AxiosError && error.response) {
+        const apiError = error.response.data as ApiErrorResponse;
+        throw new Error(apiError.message);
+      }
+      throw new Error('An unexpected error occurred');
+    }
   };
 
   const register = async (credentials: RegisterCredentials) => {
-    const response = await api.post('/auth/register', credentials);
-    const { token, user } = response.data;
+    try {
+      const response = await api.post('/auth/register', credentials);
+      const { token, user } = response.data;
 
-    localStorage.setItem('token', token);
-    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      localStorage.setItem('token', token);
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
-    setState({
-      user,
-      token,
-      isAuthenticated: true,
-      isLoading: false,
-    });
+      setState({
+        user,
+        token,
+        isAuthenticated: true,
+        isLoading: false,
+      });
+    } catch (error) {
+      if (error instanceof AxiosError && error.response) {
+        const apiError = error.response.data as ApiErrorResponse;
+        throw new Error(apiError.message);
+      }
+      throw new Error('An unexpected error occurred');
+    }
   };
 
   const logout = () => {
