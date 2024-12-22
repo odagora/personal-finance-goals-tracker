@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { AuthState, LoginCredentials, RegisterCredentials } from '@/types/auth';
+import { AuthState, LoginCredentials, RegisterCredentials, User } from '@/types/auth';
 import { api } from '@/services/api';
 import { AuthContext } from './auth.context';
 import { jwtDecode, JwtPayload } from 'jwt-decode';
@@ -19,6 +19,22 @@ interface ApiErrorResponse {
   statusCode: number;
   status: string;
 }
+
+interface BackendUser {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  createdAt: string;
+}
+
+const transformUser = (backendUser: BackendUser): User => ({
+  id: backendUser.id,
+  email: backendUser.email,
+  name: `${backendUser.firstName} ${backendUser.lastName}`,
+  createdAt: backendUser.createdAt,
+  updatedAt: backendUser.createdAt,
+});
 
 const initialState: AuthState = {
   user: null,
@@ -42,13 +58,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           throw new Error('Token expired');
         }
 
-        const user = {
+        const user = transformUser({
           id: decoded.userId,
           email: decoded.email,
-          name: `${decoded.firstName} ${decoded.lastName}`,
+          firstName: decoded.firstName,
+          lastName: decoded.lastName,
           createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        };
+        });
 
         api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         setState({
@@ -74,13 +90,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (credentials: LoginCredentials) => {
     try {
       const response = await api.post('/auth/login', credentials);
-      const { token, user } = response.data;
+      const { token, user: backendUser } = response.data;
+
+      const transformedUser = transformUser(backendUser);
 
       localStorage.setItem('token', token);
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
       setState({
-        user,
+        user: transformedUser,
         token,
         isAuthenticated: true,
         isLoading: false,
@@ -97,13 +115,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const register = async (credentials: RegisterCredentials) => {
     try {
       const response = await api.post('/auth/register', credentials);
-      const { token, user } = response.data;
+      const { token, user: backendUser } = response.data;
+
+      const transformedUser = transformUser(backendUser);
 
       localStorage.setItem('token', token);
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
       setState({
-        user,
+        user: transformedUser,
         token,
         isAuthenticated: true,
         isLoading: false,
