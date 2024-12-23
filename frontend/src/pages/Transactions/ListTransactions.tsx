@@ -21,11 +21,19 @@ export function ListTransactions() {
     page: 1,
     limit: 10,
   });
+  const [categories, setCategories] = useState<string[]>([]);
+  const [isLoadingCategories, setIsLoadingCategories] = useState(true);
 
-  const [filters, setFilters] = useState<Filters>({
+  const initialFilters: Filters = {
+    type: undefined,
+    category: undefined,
+    startDate: undefined,
+    endDate: undefined,
     page: 1,
     limit: 10,
-  });
+  };
+
+  const [filters, setFilters] = useState<Filters>(initialFilters);
 
   useEffect(() => {
     const fetchTransactions = async () => {
@@ -44,6 +52,34 @@ export function ListTransactions() {
 
     fetchTransactions();
   }, [filters]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setIsLoadingCategories(true);
+        const data = await transactionService.getCategories();
+        setCategories(data);
+      } catch (error) {
+        console.error('Failed to fetch categories:', error);
+      } finally {
+        setIsLoadingCategories(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  const handleFilterChange = (newFilters: Filters) => {
+    setFilters((prev) => ({
+      ...prev,
+      ...newFilters,
+      page: 1, // Reset page when filters change
+    }));
+  };
+
+  const handleResetFilters = () => {
+    setFilters(initialFilters);
+  };
 
   return (
     <div className="min-h-screen bg-[#F8F9FC] max-w-screen-xl mx-auto">
@@ -67,7 +103,13 @@ export function ListTransactions() {
           <div className="mx-auto w-full">
             <div className="rounded-lg border bg-white shadow">
               <div className="p-4 lg:p-6">
-                <TransactionFilters />
+                <TransactionFilters
+                  filters={filters}
+                  categories={categories}
+                  isLoadingCategories={isLoadingCategories}
+                  onFilterChange={handleFilterChange}
+                  onReset={handleResetFilters}
+                />
                 <div className="relative w-full overflow-x-auto">
                   {isLoading ? (
                     <div className="flex items-center justify-center py-8">Loading...</div>
