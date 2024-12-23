@@ -107,4 +107,30 @@ router.post('/', validateTransaction, TransactionController.createTransaction);
  */
 router.get('/', validateTransactionFilters, TransactionController.listTransactions);
 
+/**
+ * @openapi
+ * /api/v1/transactions/categories:
+ *   get:
+ *     security:
+ *       - bearerAuth: []
+ *     tags:
+ *       - Transactions
+ *     summary: Get unique categories from user transactions
+ *     description: Retrieve a list of unique categories from user's transactions. Requires authentication.
+ *     responses:
+ *       200:
+ *         description: List of unique categories
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/CategoriesList'
+ *       401:
+ *         description: Unauthorized - Invalid or missing token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+router.get('/categories', TransactionController.getCategories);
+
 export default router;
