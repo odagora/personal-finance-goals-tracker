@@ -7,19 +7,41 @@ import { TransactionPagination } from './components/TransactionPagination';
 
 export function ListTransactions() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-[#F8F9FC] max-w-screen-2xl mx-auto">
       <TopNav />
-      <div className="flex">
-        <SideNav />
-        <main className="flex-1">
+
+      {/* Header section with constrained width */}
+      <div className="py-8 px-4 lg:px-6">
+        <div className="mx-auto max-w-xl">
+          {' '}
+          {/* Constrained width container */}
           <PageHeader
             title="Your Financial Dashboard"
             description="Monitor your investments, analyze performance, and make data-driven decisions with our comprehensive portfolio tracking tools."
+            className="text-center"
           />
-          <div className="container py-6">
-            <TransactionFilters />
-            <TransactionTable />
-            <TransactionPagination />
+        </div>
+      </div>
+
+      {/* Content section with menu and table */}
+      <div className="flex flex-col lg:flex-row gap-6 px-4 lg:px-8">
+        <div className="lg:hidden">{/* Mobile menu trigger button will go here */}</div>
+        <div className="hidden lg:block lg:flex-shrink-0">
+          <SideNav />
+        </div>
+        <main className="flex-1 min-w-0">
+          <div className="mx-auto w-full">
+            <div className="rounded-lg border bg-white shadow overflow-x-auto">
+              <div className="p-4 lg:p-6">
+                <TransactionFilters />
+                <div className="relative w-full">
+                  <div className="min-w-full inline-block align-middle">
+                    <TransactionTable />
+                  </div>
+                </div>
+                <TransactionPagination />
+              </div>
+            </div>
           </div>
         </main>
       </div>

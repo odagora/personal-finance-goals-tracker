@@ -14,15 +14,15 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 
 export function TransactionTable() {
   return (
-    <Table>
+    <Table className="min-w-full divide-y divide-gray-200">
       <TableHeader>
         <TableRow>
-          <TableHead>Date</TableHead>
-          <TableHead>Type</TableHead>
-          <TableHead>Category</TableHead>
-          <TableHead className="text-right">Amount</TableHead>
-          <TableHead>Description</TableHead>
-          <TableHead className="text-right">Actions</TableHead>
+          <TableHead className="w-[100px]">Date</TableHead>
+          <TableHead className="w-[100px]">Type</TableHead>
+          <TableHead className="w-[120px]">Category</TableHead>
+          <TableHead className="w-[120px] text-right">Amount</TableHead>
+          <TableHead className="min-w-[200px]">Description</TableHead>
+          <TableHead className="w-[100px] text-right">Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
