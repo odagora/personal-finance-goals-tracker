@@ -13,7 +13,7 @@ const config = {
     prefix: process.env.API_PREFIX || '/api/v1',
   },
   cors: {
-    origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+    origin: ['http://localhost:5173', 'http://finance-tracker-frontend:5173'],
   },
   rateLimit: {
     windowMs: parseInt(process.env.RATE_LIMIT_WINDOW || '900000', 10), // 15 minutos
