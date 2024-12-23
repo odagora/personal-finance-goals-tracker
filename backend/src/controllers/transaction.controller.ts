@@ -33,6 +33,19 @@ class TransactionController {
       next(error);
     }
   }
+
+  async getCategories(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      const userId = req.user?.userId;
+      if (!userId) {
+        throw new Error('User not authenticated');
+      }
+      const categories = await TransactionService.getCategories(userId);
+      res.status(200).json(categories);
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export default new TransactionController();

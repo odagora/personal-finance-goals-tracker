@@ -74,6 +74,16 @@ class TransactionService {
       amount: transaction.amount.toNumber(),
     }));
   }
+
+  async getCategories(userId: string): Promise<string[]> {
+    const transactions = await prisma.transaction.findMany({
+      where: {
+        userId,
+      },
+    });
+    const categories = [...new Set(transactions.map((t) => t.category))];
+    return categories;
+  }
 }
 
 export default new TransactionService();
