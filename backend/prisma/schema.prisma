@@ -22,15 +22,16 @@ model User {
 }
 
 model Transaction {
-  id        String   @id @default(uuid())
-  type      String   @db.VarChar(10)
-  category  String   @db.VarChar(50)
-  amount    Decimal  @db.Decimal(10, 2)
-  date      DateTime
-  userId    String
-  user      User   @relation(fields: [userId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(uuid())
+  type        String   @db.VarChar(10)
+  category    String   @db.VarChar(50)
+  amount      Decimal  @db.Decimal(10, 2)
+  date        DateTime
+  description String?  @db.Text
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@index([userId])
   @@index([type])
