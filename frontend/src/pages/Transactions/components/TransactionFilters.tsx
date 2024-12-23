@@ -13,12 +13,12 @@ import { Calendar as CalendarIcon, Download, SlidersHorizontal } from 'lucide-re
 
 export function TransactionFilters() {
   return (
-    <div className="mb-6 space-y-4 lg:space-y-0">
+    <div className="mb-6">
       {/* Types and Categories */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-[repeat(2,200px)_1fr] gap-4 mb-4">
         <Select>
-          <SelectTrigger>
-            <SelectValue placeholder="All Types" />
+          <SelectTrigger className="h-10 bg-white hover:bg-accent focus:ring-0">
+            <SelectValue placeholder="All Types" className="text-sm" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Types</SelectItem>
@@ -28,8 +28,8 @@ export function TransactionFilters() {
         </Select>
 
         <Select>
-          <SelectTrigger>
-            <SelectValue placeholder="All Categories" />
+          <SelectTrigger className="h-10 bg-white hover:bg-accent focus:ring-0">
+            <SelectValue placeholder="All Categories" className="text-sm" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Categories</SelectItem>
@@ -46,16 +46,16 @@ export function TransactionFilters() {
               <Button
                 variant="outline"
                 className={cn(
-                  'w-full justify-start text-left font-normal',
+                  'h-10 w-full justify-start bg-white px-3 text-left text-sm font-normal hover:bg-accent',
                   !Date && 'text-muted-foreground'
                 )}
               >
-                <CalendarIcon className="mr-2 h-4 w-4" />
+                <CalendarIcon className="mr-2 h-4 w-4 text-muted-foreground" />
                 Start Date
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0">
-              <Calendar mode="single" />
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar mode="single" className="rounded-md border" />
             </PopoverContent>
           </Popover>
 
@@ -64,16 +64,16 @@ export function TransactionFilters() {
               <Button
                 variant="outline"
                 className={cn(
-                  'w-full justify-start text-left font-normal',
+                  'h-10 w-full justify-start bg-white px-3 text-left text-sm font-normal hover:bg-accent',
                   !Date && 'text-muted-foreground'
                 )}
               >
-                <CalendarIcon className="mr-2 h-4 w-4" />
+                <CalendarIcon className="mr-2 h-4 w-4 text-muted-foreground" />
                 End Date
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0">
-              <Calendar mode="single" />
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar mode="single" className="rounded-md border" />
             </PopoverContent>
           </Popover>
         </div>
@@ -81,11 +81,11 @@ export function TransactionFilters() {
 
       {/* Action Buttons */}
       <div className="flex items-center justify-end gap-2">
-        <Button variant="outline" className="gap-2">
+        <Button className="h-10 gap-2 bg-primary px-4 hover:bg-primary/90">
           <Download className="h-4 w-4" />
           Export
         </Button>
-        <Button variant="outline" className="gap-2">
+        <Button variant="secondary" className="h-10 gap-2 px-4">
           <SlidersHorizontal className="h-4 w-4" />
           More Filters
         </Button>

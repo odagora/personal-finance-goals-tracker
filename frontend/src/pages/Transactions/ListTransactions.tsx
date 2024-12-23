@@ -7,7 +7,7 @@ import { TransactionPagination } from './components/TransactionPagination';
 
 export function ListTransactions() {
   return (
-    <div className="min-h-screen bg-[#F8F9FC] max-w-screen-2xl mx-auto">
+    <div className="min-h-screen bg-[#F8F9FC] max-w-screen-xl mx-auto">
       <TopNav />
 
       {/* Header section with constrained width */}
@@ -31,10 +31,10 @@ export function ListTransactions() {
         </div>
         <main className="flex-1 min-w-0">
           <div className="mx-auto w-full">
-            <div className="rounded-lg border bg-white shadow overflow-x-auto">
+            <div className="rounded-lg border bg-white shadow">
               <div className="p-4 lg:p-6">
                 <TransactionFilters />
-                <div className="relative w-full">
+                <div className="relative w-full overflow-x-auto">
                   <div className="min-w-full inline-block align-middle">
                     <TransactionTable />
                   </div>
