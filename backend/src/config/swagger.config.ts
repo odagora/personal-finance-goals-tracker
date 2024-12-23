@@ -50,6 +50,13 @@ const options = {
             },
           },
         },
+        CategoriesList: {
+          type: 'array',
+          items: {
+            type: 'string',
+          },
+          description: 'List of unique categories from user transactions',
+        },
         Transaction: {
           type: 'object',
           properties: {
