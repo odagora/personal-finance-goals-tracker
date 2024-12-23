@@ -1,20 +1,55 @@
+import { useEffect, useState } from 'react';
 import { TopNav } from '@/components/common/TopNav';
 import { SideNav } from '@/components/common/SideNav';
 import { PageHeader } from '@/components/common/PageHeader';
 import { TransactionFilters } from './components/TransactionFilters';
 import { TransactionTable } from './components/TransactionTable';
 import { TransactionPagination } from './components/TransactionPagination';
+import { transactionService } from '@/services/transaction.service';
+import {
+  Transaction,
+  TransactionFilters as Filters,
+  TransactionResponse,
+} from '@/types/transaction';
 
 export function ListTransactions() {
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [meta, setMeta] = useState<TransactionResponse['meta']>({
+    total: 0,
+    page: 1,
+    limit: 10,
+  });
+
+  const [filters, setFilters] = useState<Filters>({
+    page: 1,
+    limit: 10,
+  });
+
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        setIsLoading(true);
+        const response = await transactionService.getAll(filters);
+        setTransactions(response.data);
+        setMeta(response.meta);
+      } catch (err) {
+        console.error('Error details:', err);
+        setError('Failed to fetch transactions');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchTransactions();
+  }, [filters]);
+
   return (
     <div className="min-h-screen bg-[#F8F9FC] max-w-screen-xl mx-auto">
       <TopNav />
-
-      {/* Header section with constrained width */}
       <div className="py-8 px-4 lg:px-6">
         <div className="mx-auto max-w-xl">
-          {' '}
-          {/* Constrained width container */}
           <PageHeader
             title="Your Financial Dashboard"
             description="Monitor your investments, analyze performance, and make data-driven decisions with our comprehensive portfolio tracking tools."
@@ -23,7 +58,6 @@ export function ListTransactions() {
         </div>
       </div>
 
-      {/* Content section with menu and table */}
       <div className="flex flex-col lg:flex-row gap-6 px-4 lg:px-8">
         <div className="lg:hidden">{/* Mobile menu trigger button will go here */}</div>
         <div className="hidden lg:block lg:flex-shrink-0">
@@ -35,11 +69,27 @@ export function ListTransactions() {
               <div className="p-4 lg:p-6">
                 <TransactionFilters />
                 <div className="relative w-full overflow-x-auto">
-                  <div className="min-w-full inline-block align-middle">
-                    <TransactionTable />
-                  </div>
+                  {isLoading ? (
+                    <div className="flex items-center justify-center py-8">Loading...</div>
+                  ) : error ? (
+                    <div className="flex items-center justify-center py-8 text-red-500">
+                      {error}
+                    </div>
+                  ) : (
+                    <div className="min-w-full inline-block align-middle">
+                      <TransactionTable transactions={transactions} />
+                    </div>
+                  )}
                 </div>
-                <TransactionPagination />
+                {!isLoading && !error && (
+                  <TransactionPagination
+                    currentPage={meta.page}
+                    totalPages={Math.ceil(meta.total / meta.limit)}
+                    totalItems={meta.total}
+                    itemsPerPage={meta.limit}
+                    onPageChange={(page) => setFilters((prev) => ({ ...prev, page }))}
+                  />
+                )}
               </div>
             </div>
           </div>

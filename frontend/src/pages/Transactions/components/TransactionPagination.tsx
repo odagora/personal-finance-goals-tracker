@@ -11,9 +11,10 @@ interface TransactionPaginationProps {
 
 export function TransactionPagination({
   currentPage = 1,
-  totalPages = 3,
-  totalItems = 50,
-  itemsPerPage = 3,
+  totalPages = 1,
+  totalItems = 0,
+  itemsPerPage = 10,
+  onPageChange,
 }: TransactionPaginationProps) {
   const startItem = (currentPage - 1) * itemsPerPage + 1;
   const endItem = Math.min(currentPage * itemsPerPage, totalItems);
@@ -29,6 +30,7 @@ export function TransactionPagination({
           size="sm"
           className="h-8 px-4 text-sm disabled:opacity-50"
           disabled={currentPage === 1}
+          onClick={() => onPageChange?.(currentPage - 1)}
         >
           Previous
         </Button>
@@ -40,6 +42,7 @@ export function TransactionPagination({
             className={cn('h-8 w-8 text-sm', {
               'bg-primary text-primary-foreground hover:bg-primary/90': page === currentPage,
             })}
+            onClick={() => onPageChange?.(page)}
           >
             {page}
           </Button>
@@ -49,6 +52,7 @@ export function TransactionPagination({
           size="sm"
           className="h-8 px-4 text-sm disabled:opacity-50"
           disabled={currentPage === totalPages}
+          onClick={() => onPageChange?.(currentPage + 1)}
         >
           Next
         </Button>
