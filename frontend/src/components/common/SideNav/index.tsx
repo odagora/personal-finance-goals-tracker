@@ -3,6 +3,8 @@ import { ListIcon, PlusCircleIcon } from '@/assets/icons';
 
 export function SideNav() {
   const location = useLocation();
+  const isNewTransaction = location.pathname === '/transactions/new';
+  const isViewTransactions = location.pathname === '/transactions';
 
   return (
     <aside className="h-full w-64 rounded-lg border bg-white shadow">
@@ -11,7 +13,11 @@ export function SideNav() {
         <nav className="space-y-1">
           <Link
             to="/transactions/new"
-            className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+            className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium ${
+              isNewTransaction
+                ? 'bg-primary text-primary-foreground'
+                : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+            }`}
           >
             <PlusCircleIcon />
             New Transaction
@@ -19,7 +25,7 @@ export function SideNav() {
           <Link
             to="/transactions"
             className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium ${
-              location.pathname === '/transactions'
+              isViewTransactions
                 ? 'bg-primary text-primary-foreground'
                 : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
             }`}

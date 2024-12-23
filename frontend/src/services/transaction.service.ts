@@ -10,6 +10,14 @@ type CleanedFilters = {
   limit?: number;
 };
 
+export interface CreateTransactionDTO {
+  type: 'INCOME' | 'EXPENSE';
+  category: string;
+  amount: number;
+  date: Date;
+  description?: string;
+}
+
 // Type guard to check if key is valid
 function isValidFilterKey(key: string): key is keyof CleanedFilters {
   return ['type', 'category', 'startDate', 'endDate', 'page', 'limit'].includes(key);
@@ -38,5 +46,9 @@ export const transactionService = {
   getCategories: async (): Promise<string[]> => {
     const { data } = await api.get('/transactions/categories');
     return data;
+  },
+
+  create: async (transaction: CreateTransactionDTO): Promise<void> => {
+    await api.post('/transactions', transaction);
   },
 };
