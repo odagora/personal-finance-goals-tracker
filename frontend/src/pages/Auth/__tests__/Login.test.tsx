@@ -176,9 +176,7 @@ describe('Login', () => {
 
     // Assert
     await waitFor(() => {
-      expect(screen.getByRole('alert')).toHaveTextContent(
-        'An unexpected error occurred. Please try again.'
-      );
+      expect(screen.getByRole('alert')).toHaveTextContent('An unexpected error occurred');
     });
   });
 

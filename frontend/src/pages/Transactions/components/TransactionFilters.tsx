@@ -13,6 +13,7 @@ import { format } from 'date-fns';
 import { Calendar as CalendarIcon, Download, SlidersHorizontal, RotateCcw } from 'lucide-react';
 import { TransactionFilters as Filters } from '@/types/transaction';
 import { useState, useEffect } from 'react';
+import { TRANSACTION_CATEGORIES, TransactionType } from '@/constants/transactions';
 
 interface TransactionFiltersProps {
   filters: Filters;
@@ -24,7 +25,6 @@ interface TransactionFiltersProps {
 
 export function TransactionFilters({
   filters,
-  categories,
   isLoadingCategories,
   onFilterChange,
   onReset,
@@ -33,6 +33,9 @@ export function TransactionFilters({
   const [typeValue, setTypeValue] = useState<string | null>(filters.type || null);
   const [categoryValue, setCategoryValue] = useState<string | null>(filters.category || null);
 
+  // Get filtered categories based on selected type
+  const filteredCategories = typeValue ? TRANSACTION_CATEGORIES[typeValue as TransactionType] : [];
+
   // Update local state when filters change externally
   useEffect(() => {
     setTypeValue(filters.type || null);
@@ -40,13 +43,28 @@ export function TransactionFilters({
   }, [filters.type, filters.category]);
 
   const handleFilterChange = (key: keyof Filters, value: string | null) => {
-    if (key === 'type') setTypeValue(value);
-    if (key === 'category') setCategoryValue(value);
+    if (key === 'type') {
+      setTypeValue(value);
+      setCategoryValue(null); // Reset category when type changes
 
-    onFilterChange({
-      ...filters,
-      [key]: value || undefined, // Keep undefined for API calls
-    });
+      onFilterChange({
+        ...filters,
+        type: value || undefined,
+        category: undefined, // Clear category filter
+      });
+    } else if (key === 'category') {
+      setCategoryValue(value);
+
+      onFilterChange({
+        ...filters,
+        category: value || undefined,
+      });
+    } else {
+      onFilterChange({
+        ...filters,
+        [key]: value || undefined,
+      });
+    }
   };
 
   const handleReset = () => {
@@ -74,13 +92,13 @@ export function TransactionFilters({
         <Select
           value={categoryValue || ''}
           onValueChange={(value) => handleFilterChange('category', value)}
-          disabled={isLoadingCategories}
+          disabled={!typeValue || isLoadingCategories}
         >
           <SelectTrigger>
             <SelectValue placeholder="All Categories" />
           </SelectTrigger>
           <SelectContent>
-            {categories.map((category) => (
+            {filteredCategories.map((category) => (
               <SelectItem key={category} value={category}>
                 {category}
               </SelectItem>
