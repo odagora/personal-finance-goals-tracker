@@ -15,10 +15,13 @@ RUN npx prisma generate
 # Build TypeScript
 RUN npm run build
 
-# Verify the build output
-RUN ls -la dist/src/
+# Debug: List contents of directories
+RUN echo "Contents of /usr/src/app:" && \
+    ls -la /usr/src/app && \
+    echo "Contents of /usr/src/app/dist:" && \
+    ls -la /usr/src/app/dist
 
 EXPOSE 3000
 
-# Use the correct path to the built server file
-CMD ["node", "dist/src/server.js"]
+# Use npm start instead of direct node command
+CMD ["npm", "start"]
