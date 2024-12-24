@@ -4,7 +4,7 @@
   "description": "Backend for Personal Finance Goal Tracker",
   "main": "dist/server.js",
   "scripts": {
-    "start": "node dist/server.js",
+    "start": "node dist/src/server.js",
     "dev": "npx prisma generate && ts-node-dev --respawn --transpile-only src/server.ts",
     "build": "tsc",
     "test": "jest",

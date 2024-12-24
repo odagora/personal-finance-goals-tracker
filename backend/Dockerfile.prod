@@ -1,6 +1,6 @@
 FROM node:20-slim
 
-WORKDIR /app
+WORKDIR /usr/src/app
 
 # Install dependencies
 COPY package*.json ./
@@ -15,5 +15,10 @@ RUN npx prisma generate
 # Build TypeScript
 RUN npm run build
 
+# Verify the build output
+RUN ls -la dist/src/
+
 EXPOSE 3000
-CMD ["npm", "start"]
+
+# Use the correct path to the built server file
+CMD ["node", "dist/src/server.js"]
