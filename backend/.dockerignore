@@ -3,3 +3,8 @@ npm-debug.log
 .env
 .git
 .gitignore
+__tests__
+coverage
+.env
+.env.*
+!.env.example

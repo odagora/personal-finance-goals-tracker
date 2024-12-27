@@ -6,9 +6,6 @@
 .env.*
 !.env.example
 
-# Dependencies
-node_modules/
-
 # Docker
 docker-compose.override.yml
 /postgres_data
@@ -26,17 +23,3 @@ yarn-error.log*
 *.swp
 *.swo
 .DS_Store
-
-# Build and temporary files
-dist/
-build/
-tmp/
-temp/
-
-# Testing
-coverage/
-.nyc_output/
-
-# Prisma
-prisma/*.db
-prisma/migrations/

@@ -25,3 +25,7 @@ dist-ssr
 
 # Vite
 .vite
+
+# Testing
+coverage/
+.nyc_output/

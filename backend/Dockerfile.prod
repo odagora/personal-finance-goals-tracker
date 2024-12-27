@@ -1,10 +1,16 @@
 FROM node:20-slim
 
-WORKDIR /usr/src/app
+WORKDIR /app
+
+# Install OpenSSL and other required dependencies
+RUN apt-get update -y && \
+    apt-get install -y openssl && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Install dependencies
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm ci
 
 # Copy source
 COPY . .
@@ -15,10 +21,10 @@ RUN npx prisma generate
 # Build TypeScript
 RUN npm run build
 
-# Verify the build output
-RUN ls -la dist/src/
+# Set production environment
+ENV NODE_ENV=production
 
 EXPOSE 3000
 
-# Use the correct path to the built server file
-CMD ["node", "dist/src/server.js"]
+# Use the start script from package.json
+CMD ["npm", "run", "start"]
