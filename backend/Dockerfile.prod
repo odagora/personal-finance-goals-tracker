@@ -15,8 +15,13 @@ RUN npm ci
 # Copy source
 COPY . .
 
-# Generate Prisma Client
+# Set DATABASE_URL arg and env
+ARG DATABASE_URL
+ENV DATABASE_URL=$DATABASE_URL
+
+# Generate Prisma Client and run migrations
 RUN npx prisma generate
+RUN npx prisma migrate deploy
 
 # Build TypeScript
 RUN npm run build
