@@ -236,3 +236,79 @@ For full Docker setup including frontend services, refer to the [main README](..
 ## Contributing
 
 Please refer to the [main README](../README.md) for contribution guidelines.
+
+# Deployment Guide
+
+## Railway Deployment Configuration
+
+### Environment Variables
+Required variables in Railway dashboard:
+```bash
+# Custom Dockerfile Path
+RAILWAY_DOCKERFILE_PATH=/backend/Dockerfile.prod
+
+# Database URL (using Public Networking)
+DATABASE_URL=postgres://<user>:<pass>@<host>.railway.app:5432/<db>
+
+# Application Config
+PORT=8080
+NODE_ENV=production
+JWT_SECRET=your-secret
+CORS_ORIGIN=https://your-frontend-domain.vercel.app
+```
+
+### Build Configuration
+The application builds using a production Dockerfile (`Dockerfile.prod`) which:
+1. Installs dependencies
+2. Runs database migrations during build
+3. Builds the TypeScript application
+
+Key points:
+- Custom start command: `npm run start`
+- Uses `Dockerfile.prod` instead of default `Dockerfile`
+- Runs Prisma migrations at build time
+- Requires DATABASE_URL as build argument
+
+### Important Files
+
+1. **Dockerfile.prod**:
+```dockerfile
+# Set DATABASE_URL arg and env for build-time migrations
+ARG DATABASE_URL
+ENV DATABASE_URL=$DATABASE_URL
+
+# Generate Prisma Client and run migrations
+RUN npx prisma generate
+RUN npx prisma migrate deploy
+```
+
+2. **GitHub Workflow**:
+```yaml
+- name: Deploy to Railway
+  run: railway up --build-arg DATABASE_URL=${{ secrets.DATABASE_URL }}
+  env:
+    RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+    DATABASE_URL: ${{ secrets.DATABASE_URL }}
+```
+
+### Troubleshooting
+
+1. **Database Connectivity**
+   - Use Public Networking URL format from Railway
+   - Ensure DATABASE_URL is properly set in both build args and environment
+
+2. **Build Issues**
+   - Check if RAILWAY_DOCKERFILE_PATH is correct
+   - Verify Dockerfile.prod path is relative to project root
+   - Ensure all required build arguments are passed
+
+3. **Runtime Issues**
+   - Verify start command matches package.json scripts
+   - Check logs for migration errors
+   - Ensure environment variables are properly set
+
+## References
+
+- [Railway Dockerfile Guide](https://docs.railway.com/guides/dockerfiles)
+- [Custom Dockerfile Path](https://docs.railway.com/guides/dockerfiles#custom-dockerfile-path)
+- [Build-time Variables](https://docs.railway.com/guides/dockerfiles#using-variables-at-build-time)
