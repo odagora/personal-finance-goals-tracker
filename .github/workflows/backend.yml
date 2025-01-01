@@ -43,14 +43,11 @@ jobs:
       # Deploy to Railway
       - name: Install Railway CLI
         if: github.ref == 'refs/heads/main'
-        run: npm i -g @railway/cli
+        run: npm install -g @railway/cli
 
       - name: Deploy to Railway
         if: github.ref == 'refs/heads/main'
-        run: railway up --build-arg DATABASE_URL=${{ secrets.DATABASE_URL }}
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          PORT: ${{ secrets.PORT || 8080 }}
-          CORS_ORIGIN: ${{ secrets.CORS_ORIGIN }}
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          RAILWAY_SERVICE_NAME: ${{ secrets.RAILWAY_SERVICE_NAME }}
+        run: RAILWAY_TOKEN=$RAILWAY_TOKEN railway up --service=$RAILWAY_SERVICE_NAME
