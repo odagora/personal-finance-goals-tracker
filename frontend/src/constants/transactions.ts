@@ -11,6 +11,8 @@ export const TRANSACTION_CATEGORIES = {
     'Transportation',
     'Housing',
     'Utilities',
+    'Healthcare',
+    'Entertainment',
     'Shopping',
     'Education',
     'Other Expenses',

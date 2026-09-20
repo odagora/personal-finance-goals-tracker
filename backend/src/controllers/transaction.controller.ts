@@ -1,6 +1,7 @@
 import { Response, NextFunction } from 'express';
 import TransactionService from '../services/transaction.service';
-import { CreateTransactionDTO, TransactionFilters } from '../types';
+import CategorySuggestionService from '../services/categorySuggestion.service';
+import { CreateTransactionDTO, TransactionFilters, TransactionType } from '../types';
 import { AuthenticatedRequest } from '../types/auth.types';
 
 class TransactionController {
@@ -42,6 +43,17 @@ class TransactionController {
       }
       const categories = await TransactionService.getCategories(userId);
       res.status(200).json(categories);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  // Handler for suggesting a category from a free-text description
+  async suggestCategory(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+    try {
+      const { type, description } = req.body as { type: TransactionType; description: string };
+      const suggestion = await CategorySuggestionService.suggestCategory(type, description);
+      res.status(200).json(suggestion);
     } catch (error) {
       next(error);
     }

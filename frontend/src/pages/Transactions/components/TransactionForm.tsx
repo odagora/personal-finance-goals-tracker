@@ -1,5 +1,6 @@
 // frontend/src/pages/Transactions/components/TransactionForm.tsx
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
@@ -61,9 +62,14 @@ const transactionFormSchema = z.object({
 
 type TransactionFormValues = z.infer<typeof transactionFormSchema>;
 
+// Description must be at least this long before we bother asking for a suggestion.
+const MIN_DESCRIPTION_LENGTH_FOR_SUGGESTION = 4;
+
 export function TransactionForm() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [categoryTouchedByUser, setCategoryTouchedByUser] = useState(false);
+  const [isSuggestingCategory, setIsSuggestingCategory] = useState(false);
 
   // Initialize form with undefined values for selects
   const form = useForm<TransactionFormValues>({
@@ -88,6 +94,34 @@ export function TransactionForm() {
       form.setValue('category', TRANSACTION_CATEGORIES[value][0], {
         shouldValidate: true,
       });
+      setCategoryTouchedByUser(false);
+    }
+  };
+
+  // Ask TypeSafe to judge the category from the free-text description once the user
+  // finishes typing it, but never override a category the user picked themselves.
+  const handleDescriptionBlur = async () => {
+    const description = form.getValues('description')?.trim() ?? '';
+    if (
+      categoryTouchedByUser ||
+      !selectedType ||
+      description.length < MIN_DESCRIPTION_LENGTH_FOR_SUGGESTION
+    ) {
+      return;
+    }
+
+    setIsSuggestingCategory(true);
+    try {
+      const suggestion = await transactionService.suggestCategory(selectedType, description);
+      if (suggestion.category && !categoryTouchedByUser) {
+        form.setValue('category', suggestion.category as TransactionCategory, {
+          shouldValidate: true,
+        });
+      }
+    } catch {
+      // Suggestion is a convenience; silently leave the category as-is on failure.
+    } finally {
+      setIsSuggestingCategory(false);
     }
   };
 
@@ -157,7 +191,13 @@ export function TransactionForm() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Category</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
+                <Select
+                  onValueChange={(value) => {
+                    setCategoryTouchedByUser(true);
+                    field.onChange(value);
+                  }}
+                  value={field.value}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select category" />
@@ -248,8 +288,15 @@ export function TransactionForm() {
                   placeholder="Enter transaction details..."
                   className="resize-none"
                   {...field}
+                  onBlur={() => {
+                    field.onBlur();
+                    void handleDescriptionBlur();
+                  }}
                 />
               </FormControl>
+              {isSuggestingCategory && (
+                <p className="text-sm text-muted-foreground">Suggesting a category…</p>
+              )}
               <FormMessage />
             </FormItem>
           )}

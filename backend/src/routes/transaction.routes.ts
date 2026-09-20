@@ -3,6 +3,7 @@ import TransactionController from '../controllers/transaction.controller';
 import {
   validateTransaction,
   validateTransactionFilters,
+  validateCategorySuggestion,
 } from '../middlewares/validation.middleware';
 import { authenticateToken } from '../middlewares/auth.middleware';
 
@@ -132,5 +133,45 @@ router.get('/', validateTransactionFilters, TransactionController.listTransactio
  *               $ref: '#/components/schemas/Error'
  */
 router.get('/categories', TransactionController.getCategories);
+
+/**
+ * @openapi
+ * /api/v1/transactions/suggest-category:
+ *   post:
+ *     security:
+ *       - bearerAuth: []
+ *     tags:
+ *       - Transactions
+ *     summary: Suggest a category from a free-text transaction description
+ *     description: Uses TypeSafe AI to judge which of the type's valid categories best matches the description. Requires authentication.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - type
+ *               - description
+ *             properties:
+ *               type:
+ *                 $ref: '#/components/schemas/TransactionType'
+ *               description:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Suggested category and confidence (category is null when no confident match was found)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 category:
+ *                   type: string
+ *                   nullable: true
+ *                 confidence:
+ *                   type: number
+ */
+router.post('/suggest-category', validateCategorySuggestion, TransactionController.suggestCategory);
 
 export default router;

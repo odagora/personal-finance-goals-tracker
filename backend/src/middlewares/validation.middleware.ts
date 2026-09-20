@@ -65,6 +65,19 @@ export const validateTransactionFilters = [
   validateResults,
 ];
 
+// Category suggestion validation chain
+export const validateCategorySuggestion = [
+  body('type').isIn(Object.values(TransactionType)).withMessage('Invalid transaction type'),
+
+  body('description')
+    .isString()
+    .trim()
+    .isLength({ min: 1, max: 500 })
+    .withMessage('Description must be between 1 and 500 characters'),
+
+  validateResults,
+];
+
 export const validateRequest = (req: Request, res: Response, next: NextFunction): void => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {

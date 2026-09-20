@@ -36,6 +36,12 @@ export interface CreateTransactionDTO {
   category: TransactionCategory;
   amount: number;
   date: Date;
+  description?: string | null;
+}
+
+export interface CategorySuggestion {
+  category: TransactionCategory | null;
+  confidence: number;
 }
 
 export interface TransactionFilters {

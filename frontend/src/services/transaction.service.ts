@@ -18,6 +18,11 @@ export interface CreateTransactionDTO {
   description?: string;
 }
 
+export interface CategorySuggestion {
+  category: string | null;
+  confidence: number;
+}
+
 // Type guard to check if key is valid
 function isValidFilterKey(key: string): key is keyof CleanedFilters {
   return ['type', 'category', 'startDate', 'endDate', 'page', 'limit'].includes(key);
@@ -50,5 +55,13 @@ export const transactionService = {
 
   create: async (transaction: CreateTransactionDTO): Promise<void> => {
     await api.post('/transactions', transaction);
+  },
+
+  suggestCategory: async (
+    type: 'INCOME' | 'EXPENSE',
+    description: string
+  ): Promise<CategorySuggestion> => {
+    const { data } = await api.post('/transactions/suggest-category', { type, description });
+    return data;
   },
 };

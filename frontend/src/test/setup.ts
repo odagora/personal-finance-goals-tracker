@@ -15,3 +15,9 @@ Object.defineProperty(window, 'matchMedia', {
     dispatchEvent: vi.fn(),
   })),
 });
+
+// jsdom doesn't implement these, but Radix UI's Select needs them to open/select via user-event.
+Element.prototype.hasPointerCapture = vi.fn().mockReturnValue(false);
+Element.prototype.setPointerCapture = vi.fn();
+Element.prototype.releasePointerCapture = vi.fn();
+Element.prototype.scrollIntoView = vi.fn();

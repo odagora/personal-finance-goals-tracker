@@ -26,6 +26,9 @@ const config = {
     secret: process.env.JWT_SECRET || 'your-secret-key',
     expiresIn: process.env.JWT_EXPIRES_IN || '24h',
   },
+  typesafe: {
+    apiKey: process.env.TYPESAFE_API_KEY,
+  },
 };
 
 export default config;
