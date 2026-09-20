@@ -3,6 +3,10 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
+  await prisma.transaction.deleteMany({
+    where: { userId: 'default-user-id' },
+  });
+
   await prisma.transaction.create({
     data: {
       amount: 100,
