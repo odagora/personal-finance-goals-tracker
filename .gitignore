@@ -1,5 +1,6 @@
 # AI Configuration
 .ai/
+.specstory/
 
 # Environment variables
 .env
